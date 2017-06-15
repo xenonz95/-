@@ -1,0 +1,13 @@
+FIFO: First In First Out，即先进先出。在生产者->消费者模型中这种数据结构被经常使用。
+要求：
+设计FIFO的通用型数据结构
+设计相应的函数接口
+    fifo_init() 初始化fifo
+    fifo_in() 向fifo里输入数据
+    fifo_out() 从fifo里取出数据
+    fifo_len() 返回fifo已使用字节
+    fifo_avail() 返回fifo剩余字节
+将fifo模块封闭成动态库
+编写测试程序对fifo进行测试
+
+建议：先从简单到难做起：1）输入数据为单个字符，输出为单个字符 2）定长数据结构的输入输出 3）不定长数据结构的输入输出
