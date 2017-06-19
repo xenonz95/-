@@ -13,5 +13,6 @@ class CircleBuffer
     int length;
     int head;
     int end;
+    int mask;
     char *data;
 };

@@ -1,6 +1,16 @@
 #include "../head/BufferManager.h"
 #include <iostream>
 
+BufferManager::BufferManager(int length)
+{
+    if (length < 1)
+        length = 1;
+    int i = 0;
+    while ((length - 1) >> ++i);
+    space = new CircleBuffer(1 << i);
+    pointer = new node;
+    pointer->next = pointer;
+}
 int BufferManager::InString(const string &content)
 {
     node *p = new node;
@@ -12,20 +22,10 @@ int BufferManager::InString(const string &content)
     {
         space->InBuffer(content[i]);
     }
-    // std::cout << pointer->length << endl;
-    // std::cout << pointer->next->length << endl;
-    // std::cout << pointer->next->next->length << endl;
-    // std::cout << pointer->next->next->next->length << endl;
-    // std::cout << pointer->next->next->next->next->length << endl << endl;
     return 0;
 }
 int BufferManager::OutString(string &content)
 {
-    // std::cout << pointer->length << endl;
-    // std::cout << pointer->next->length << endl;
-    // std::cout << pointer->next->next->length << endl;
-    // std::cout << pointer->next->next->next->length << endl;
-    // std::cout << pointer->next->next->next->next->length << endl << endl;
     node *p;
     content = string(pointer->next->next->length + 1, '\0');
     if (pointer->next == pointer)
@@ -38,4 +38,16 @@ int BufferManager::OutString(string &content)
     pointer->next = pointer->next->next;
     delete p;
     return 0;
+}
+BufferManager::~BufferManager()
+{
+    delete space;
+    node *p;
+    while (pointer->next != pointer)
+    {
+        p = pointer->next;
+        pointer->next = pointer->next->next;
+        delete p;
+    }
+    delete pointer;
 }

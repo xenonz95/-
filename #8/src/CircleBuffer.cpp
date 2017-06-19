@@ -1,16 +1,18 @@
 #include "../head/CircleBuffer.h"
+#include<iostream>
 CircleBuffer::CircleBuffer(int length)
 {
     CircleBuffer::length = length;
-    data = new char[length + 1];
+    data = new char[length];
     head = 0;
-    end = head + 1;
+    end = head;
+    mask = length-1;
 };
 int CircleBuffer::OutBuffer(char &c)
 {
-    if (CircleBuffer::Length() > 0)
+    if (Length() > 0)
     {
-        c = data[++head];
+        c = data[head++&mask];
         return 0;
     }
     else
@@ -22,16 +24,17 @@ int CircleBuffer::OutBuffer(char &c)
 
 int CircleBuffer::InBuffer(const char &c)
 {
-    if (head != end)
+    if (Length() < length)
     {
-        data[end++] = c;
+        data[end++&mask] = c;
         return 0;
+       
     }
     else return -1;
 }
 
 int CircleBuffer::Length(void)
-{    return (end - head + length) % length-1;}
+{    return (end - head) &mask;}
 
 int CircleBuffer::Available(void)
 {    return length - CircleBuffer::Length();}

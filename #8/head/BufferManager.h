@@ -5,12 +5,7 @@ using namespace std;
 class BufferManager
 {
   public:
-    BufferManager(int length)
-    {
-        space = new CircleBuffer(length);
-        pointer = new node;
-        pointer->next = pointer;
-    }
+    BufferManager(int length);
     int InString(const string &content);
     int OutString(string &content);
     int length()
@@ -21,18 +16,7 @@ class BufferManager
     {
         return space->Available();
     }
-    ~BufferManager()
-    {
-        delete space;
-        node *p;
-        while (pointer->next != pointer)
-        {
-            p = pointer->next;
-            pointer->next = pointer->next->next;
-            delete p;
-        }
-        delete pointer;
-    }
+    ~BufferManager();
 
   private:
     struct node
