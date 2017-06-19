@@ -8,14 +8,10 @@ class BufferManager
     BufferManager(int length);
     int InString(const string &content);
     int OutString(string &content);
-    int length()
-    {
-        return space->Length();
-    }
-    int Available()
-    {
-        return space->Available();
-    }
+    inline int length()
+    {   return space->Length();}
+    inline int Available()
+    {   return space->Available();}
     ~BufferManager();
 
   private:

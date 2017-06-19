@@ -1,5 +1,5 @@
 #include "../head/CircleBuffer.h"
-#include<iostream>
+
 CircleBuffer::CircleBuffer(int length)
 {
     CircleBuffer::length = length;
