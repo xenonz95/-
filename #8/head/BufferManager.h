@@ -6,8 +6,8 @@ class BufferManager
 {
   public:
     BufferManager(int length);
-    int InString(const string &content);
-    int OutString(string &content);
+    int In(const char* content,int length);
+    char* Out(void);
     inline int length()
     {   return space->Length();}
     inline int Available()
@@ -15,13 +15,5 @@ class BufferManager
     ~BufferManager();
 
   private:
-    struct node
-    {
-        int length;
-        node *next;
-    };
-    node *pointer;
     CircleBuffer *space;
-    int AddNode(int strLength);
-    int RemoveNode(void);
 };

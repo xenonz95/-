@@ -12,5 +12,7 @@ main ()
 	cin >> test;
 	while(test>>++i);
 	cout << (1<<i);
+
+	cout << "     "<<  sizeof(char);
 	return 0;
 }

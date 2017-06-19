@@ -4,7 +4,7 @@ using namespace std;
 int main()
 {
     work8 test;
-    test.fifo_init(30);
+    test.fifo_init(100);
     for(int i=0;i<100000;i++)
 {    
     test.fifo_in("Hello ");
