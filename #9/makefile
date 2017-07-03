@@ -14,7 +14,9 @@ liblist.so : list.o
 	gcc -fPIC -shared -o $@ $^
 #	@-mkdir ./lib
 	@mv $@ ./lib/$@
-list.o : list.h api.h
+
+list.o : list.h api.h list.c
+	gcc -c -o $@ list.c -fPIC
 
 clean :
 	@-rm *.o test ./lib/*.so

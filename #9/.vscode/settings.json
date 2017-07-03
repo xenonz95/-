@@ -8,6 +8,7 @@
         "stl_iterator_base_funcs.h": "c",
         "ios_base.h": "c",
         "char_traits.h": "c",
-        "stdio2.h": "c"
+        "stdio2.h": "c",
+        "stdio.h": "c"
     }
 }

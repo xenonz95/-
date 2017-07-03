@@ -33,6 +33,8 @@ static inline void _popListNode(listManager *Man, void **content)
 static inline void _setNextStart(listManager *Man, int number)
 {
     struct list_head *np = &(Man->head->list);
+    Man->avail = Man->length - number + 1;
+    
     if (number && number <= Man->length)
     {
         while (--number)
@@ -47,12 +49,13 @@ static inline void _setNextStart(listManager *Man, int number)
     }
 }
 
-static inline void _eachEntryNext(listManager *Man, void **p, int number)
+static inline int _eachEntryNext(listManager *Man, void **p, int number)
 {
     if (!number)
     {
         if (!(Man->p))
         {
+            Man->avail = Man->length;
             Man->p = &(Man->head->list);
         }
     }
@@ -62,6 +65,9 @@ static inline void _eachEntryNext(listManager *Man, void **p, int number)
     }
     *p = container_of(Man->p, struct node, list)->carrier;
     Man->p = Man->p->next;
+    if(!(--(Man->avail)))
+        Man->p = NULL;
+    return Man->avail;
 }
 
 
@@ -105,9 +111,9 @@ void destroyList(listManager *Man) ///Must free all carrier by yourself
     }
 }
 
-void eachEntryNext(listManager *Man, void **p, int number)
+int eachEntryNext(listManager *Man, void **p, int number)
 {
-    _eachEntryNext(Man, p, number);
+    return _eachEntryNext(Man, p, number);
 }
 
 

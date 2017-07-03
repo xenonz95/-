@@ -30,6 +30,7 @@ struct node
 struct _list
 {
 	int length;
+	int avail;
 	struct node *head;
 	struct list_head *p;
 };
@@ -41,5 +42,5 @@ void addListNode(listManager *Man, void *content);
 void popListNode(listManager *Man, void **content);
 void firstListNode(listManager *Man, void *content);
 void destroyList(listManager *Man);
-void eachEntryNext(listManager *Man, void **p, int number);
+int eachEntryNext(listManager *Man, void **p, int number);
 void setNextStart(listManager *Man, int number);
