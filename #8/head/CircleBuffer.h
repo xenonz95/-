@@ -4,7 +4,9 @@ class CircleBuffer
 
   public:
     CircleBuffer(int length);
+    int fastOut(char*a,int len);
     int OutBuffer(char &collecter);
+    int fastIn(char *a,int len);
     int InBuffer(const char &collecter);
     int Length(void);
     int Available(void);

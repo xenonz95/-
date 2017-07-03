@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "list.h": "c",
+        "normal-list-change.h": "c",
+        "list.c": "c",
+        "api.h": "c",
+        "getopt.h": "c",
+        "stl_iterator_base_funcs.h": "c",
+        "ios_base.h": "c",
+        "char_traits.h": "c",
+        "stdio2.h": "c"
+    }
+}

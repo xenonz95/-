@@ -10,11 +10,11 @@ int work8::fifo_init(int Byte_count)
 
 int work8::fifo_in(string input_string)
 {
-    one->In(input_string.c_str(),input_string.length());
+    one->In(input_string.c_str(), input_string.length());
     return 0;
 }
 
-char* work8::fifo_out(void)
+char *work8::fifo_out(void)
 {
     return one->Out();
 }
