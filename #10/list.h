@@ -19,7 +19,7 @@
 #else
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif
-
+#define NULL 0
 /*copied from <linux/kernel.h>*/
 /**
  * container_of - cast a member of a structure out to the containing structure

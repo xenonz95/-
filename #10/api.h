@@ -24,22 +24,22 @@ struct hlist_node
 struct node
 {
 	void *carrier;
+	int key;
 	struct hlist_node list;
 };
 
-struct _list
+struct _hlist
 {
 	int hash_number;
 	int avail;
-	struct hlist_head * heads;
+	struct hlist_head *heads;
 };
 
-typedef struct _list listManager;
+typedef struct _hlist listManager;
 
-void initList(listManager *Man);
-void addListNode(listManager *Man, void *content);
-void popListNode(listManager *Man, void **content);
-void firstListNode(listManager *Man, void *content);
-void destroyList(listManager *Man);
-int eachEntryNext(listManager *Man, void **p, int number);
-void setNextStart(listManager *Man, int number);
+void initHlist(listManager *Man, int hash_number);
+void addHlistNode(listManager *Man, int key, void *content);
+void popHlistNode(listManager *Man, int key, void **content);
+void findHlistNode(listManager *Man, int key, void **content);
+void destroyHlist(listManager *Man);
+void destroyHlist_free(listManager *Man, void (*fun)(struct node *));

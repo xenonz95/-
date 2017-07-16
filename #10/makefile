@@ -1,6 +1,6 @@
 VPATH = ./lib
 
-.PHONY: all clean
+.PHONY: all clean run
 all : test lib
 
 test : main.o libhlist.so
@@ -20,3 +20,6 @@ hlist.o : list.h api.h hlist.c
 
 clean :
 	@-rm *.o test ./lib/*.so
+
+run :
+	@LD_LIBRARY_PATH=./lib ./main
