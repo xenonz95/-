@@ -6,12 +6,13 @@ void initHlist(listManager *Man, int hash_number)
     int i = 0, j = 0;
     while ((hash_number - 1) >> ++i)
         ;
-    Man->heads = (struct hlist_head *)malloc(sizeof(struct hlist_head) * i);
-    Man->hash_number = i - 1;
+    Man->heads = (struct hlist_head *)malloc(sizeof(struct hlist_head) * (1 << i));
+    Man->hash_number = (1 << i) - 1;
     for (j = 0; j < i; j++)
     {
         INIT_HLIST_HEAD(Man->heads + j);
     }
+    Man->avail = 0;
 }
 
 void addHlistNode(listManager *Man, int key, void *content)
@@ -33,9 +34,8 @@ void popHlistNode(listManager *Man, int key, void **content)
     {
         if (!hlist_empty(p2 = &(Man->heads[key & (Man->hash_number)])))
         {
-            printf("MARKpop");
             p3 = p2->first;
-            while (p3 == NULL)
+            while (p3 != NULL)
             {
                 p1 = hlist_entry(p3, struct node, list);
                 if (p1->key == key)
@@ -51,7 +51,7 @@ void popHlistNode(listManager *Man, int key, void **content)
             }
             else
             {
-                printf("[debug] in this listManager, dont have the given key.%d \n",key);
+                printf("[debug] in this listManager, dont have the given key.%d \n", key);
                 *content = NULL;
             }
         }
@@ -112,7 +112,7 @@ static inline void _destroyHlist(listManager *Man, void (*fun)(struct node *))
     struct hlist_node *p3;
     while (Man->avail)
     {
-        if (hlist_empty(p2 = &(Man->heads[i & (Man->hash_number)])))
+        if (!hlist_empty(p2 = &(Man->heads[i & (Man->hash_number)])))
         {
             p3 = p2->first;
             hlist_del(p3);
