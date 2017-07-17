@@ -28,19 +28,36 @@ void popHlistNode(listManager *Man, int key, void **content)
 {
     struct node *p1;
     struct hlist_head *p2;
+    struct hlist_node *p3;
     if (Man->avail)
     {
-        if (hlist_empty(p2 = &(Man->heads[key & (Man->hash_number)])))
+        if (!hlist_empty(p2 = &(Man->heads[key & (Man->hash_number)])))
         {
-            p1 = hlist_entry(p2->first, struct node, list);
-            *content = p1->carrier;
-            hlist_del(&(p1->list));
-            free(p1);
-            --(Man->avail);
+            printf("MARKpop");
+            p3 = p2->first;
+            while (p3 == NULL)
+            {
+                p1 = hlist_entry(p3, struct node, list);
+                if (p1->key == key)
+                    break;
+                p3 = p3->next;
+            }
+            if (p3 != NULL)
+            {
+                *content = p1->carrier;
+                hlist_del(p3);
+                free(p1);
+                --(Man->avail);
+            }
+            else
+            {
+                printf("[debug] in this listManager, dont have the given key.%d \n",key);
+                *content = NULL;
+            }
         }
         else
         {
-            printf("[debug] in this listManager, dont have the given key.");
+            printf("[debug] in this listManager, dont have the given key.\n");
             *content = NULL;
         }
     }
@@ -50,16 +67,32 @@ void findHlistNode(listManager *Man, int key, void **content)
 {
     struct node *p1;
     struct hlist_head *p2;
+    struct hlist_node *p3;
     if (Man->avail)
     {
         if (hlist_empty(p2 = &(Man->heads[key & (Man->hash_number)])))
         {
-            p1 = hlist_entry(p2->first, struct node, list);
-            *content = p1->carrier;
+            p3 = p2->first;
+            while (p3 == NULL)
+            {
+                p1 = hlist_entry(p3, struct node, list);
+                if (p1->key == key)
+                    break;
+                p3 = p3->next;
+            }
+            if (p3 != NULL)
+            {
+                *content = p1->carrier;
+            }
+            else
+            {
+                printf("[debug] in this listManager, dont have the given key.\n");
+                *content = NULL;
+            }
         }
         else
         {
-            printf("[debug] in this listManager, dont have the given key.");
+            printf("[debug] in this listManager, dont have the given key.\n");
             *content = NULL;
         }
     }
@@ -67,6 +100,7 @@ void findHlistNode(listManager *Man, int key, void **content)
 
 static void _defaultDestroier(struct node *a)
 {
+    free(a->carrier);
     free(a);
 }
 
@@ -75,11 +109,14 @@ static inline void _destroyHlist(listManager *Man, void (*fun)(struct node *))
     int i = 0;
     struct node *p1;
     struct hlist_head *p2;
+    struct hlist_node *p3;
     while (Man->avail)
     {
         if (hlist_empty(p2 = &(Man->heads[i & (Man->hash_number)])))
         {
-            p1 = hlist_entry(p2->first, struct node, list);
+            p3 = p2->first;
+            hlist_del(p3);
+            p1 = hlist_entry(p3, struct node, list);
             fun(p1);
             --(Man->avail);
             i++;
@@ -90,6 +127,7 @@ static inline void _destroyHlist(listManager *Man, void (*fun)(struct node *))
             continue;
         }
     }
+    free((Man->heads));
 }
 
 void destroyHlist(listManager *Man)

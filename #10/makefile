@@ -21,5 +21,5 @@ hlist.o : list.h api.h hlist.c
 clean :
 	@-rm *.o test ./lib/*.so
 
-run :
-	@LD_LIBRARY_PATH=./lib ./main
+run : all
+	LD_LIBRARY_PATH=./lib ./test
