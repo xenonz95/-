@@ -34,7 +34,7 @@ static inline void _setNextStart(listManager *Man, int number)
 {
     struct list_head *np = &(Man->head->list);
     Man->avail = Man->length - number + 1;
-    
+
     if (number && number <= Man->length)
     {
         while (--number)
@@ -65,11 +65,10 @@ static inline int _eachEntryNext(listManager *Man, void **p, int number)
     }
     *p = container_of(Man->p, struct node, list)->carrier;
     Man->p = Man->p->next;
-    if(!(--(Man->avail)))
+    if (!(--(Man->avail)))
         Man->p = NULL;
     return Man->avail;
 }
-
 
 void initList(listManager *Man)
 {
@@ -78,12 +77,10 @@ void initList(listManager *Man)
     Man->p = NULL;
 }
 
-
 void addListNode(listManager *Man, void *content)
 {
     _addListNode(Man, content);
 }
-
 
 void popListNode(listManager *Man, void **content)
 {
@@ -106,6 +103,7 @@ void destroyList(listManager *Man) ///Must free all carrier by yourself
     {
         struct node *p = container_of(Man->head->list.prev, struct node, list);
         list_del(&(p->list));
+        free(p->carrier);
         free(p);
         --(Man->length);
     }
@@ -116,8 +114,13 @@ int eachEntryNext(listManager *Man, void **p, int number)
     return _eachEntryNext(Man, p, number);
 }
 
-
 void setNextStart(listManager *Man, int number)
 {
     _setNextStart(Man, number);
+}
+
+void cutList(struct list_head *list,
+             struct list_head *head, struct list_head *entry)
+{
+    list_cut_position(list,head,entry);
 }

@@ -44,3 +44,5 @@ void firstListNode(listManager *Man, void *content);
 void destroyList(listManager *Man);
 int eachEntryNext(listManager *Man, void **p, int number);
 void setNextStart(listManager *Man, int number);
+void cutList(struct list_head *list,
+             struct list_head *head, struct list_head *entry);
