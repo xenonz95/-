@@ -98,13 +98,12 @@ void findHlistNode(listManager *Man, int key, void **content)
     }
 }
 
-static void _defaultDestroier(struct node *a)
+static void _defaultDestroier(void *a)
 {
-    free(a->carrier);
     free(a);
 }
 
-static inline void _destroyHlist(listManager *Man, void (*fun)(struct node *))
+static inline void _destroyHlist(listManager *Man, void (*fun)(void *))
 {
     int i = 0;
     struct node *p1;
@@ -117,7 +116,8 @@ static inline void _destroyHlist(listManager *Man, void (*fun)(struct node *))
             p3 = p2->first;
             hlist_del(p3);
             p1 = hlist_entry(p3, struct node, list);
-            fun(p1);
+            fun(p1->carrier);
+            free(p1);
             --(Man->avail);
             i++;
         }
@@ -135,7 +135,7 @@ void destroyHlist(listManager *Man)
     _destroyHlist(Man, _defaultDestroier);
 }
 
-void destroyHlist_free(listManager *Man, void (*fun)(struct node *))
+void destroyHlist_free(listManager *Man, void (*fun)(void *))
 {
     _destroyHlist(Man, fun);
 }

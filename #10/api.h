@@ -42,4 +42,4 @@ void addHlistNode(listManager *Man, int key, void *content);
 void popHlistNode(listManager *Man, int key, void **content);
 void findHlistNode(listManager *Man, int key, void **content);
 void destroyHlist(listManager *Man);
-void destroyHlist_free(listManager *Man, void (*fun)(struct node *));
+void destroyHlist_free(listManager *Man, void (*fun)(void *));
