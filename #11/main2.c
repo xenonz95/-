@@ -5,7 +5,7 @@
 #include <sys/select.h>
 #include <time.h>
 
-#define PATH "/dev/input/event4"
+#define PATH "/dev/input/event4" //depend on your systerm and device
 
 char out_code(int code)
 {
@@ -66,22 +66,22 @@ int main()
     //read(file_key,&input_ev_one,sizeof input_ev_one);
     while(1)
     {
-        
-        if ((select_num = select(file_key+1,&read_set,NULL,NULL,&tv)) >= 0)
+        FD_ZERO(&read_set);
+        FD_SET(file_key, &read_set);
+        if ((select_num = select(file_key + 1, &read_set, NULL, NULL, &tv)) > 0)
         {
-            //printf("test\n");
+            printf("test\n");
             //printf("\n%d\n",select_num);
-        
-            if(read(file_key,&input_ev_one,sizeof input_ev_one) == sizeof input_ev_one)
+            if (read(file_key, &input_ev_one, sizeof input_ev_one) == sizeof input_ev_one)
             {
-                if(input_ev_one.type == EV_KEY)
+                if (input_ev_one.type == EV_KEY)
                 {
-                    if(input_ev_one.value == 0)
+                    if (input_ev_one.value == 0)
                     {
                         printf("\nThis is key ");
-                        printf("%c",out_code(input_ev_one.code));
+                        printf("%c", out_code(input_ev_one.code));
                         putchar('\n');
-                        if(input_ev_one.code == KEY_ESC)
+                        if (input_ev_one.code == KEY_ESC)
                             break;
                     }
                 }
