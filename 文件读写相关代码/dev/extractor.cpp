@@ -22,7 +22,7 @@ void extractor::saveBuffer(int fileNo,const string &dirAddress)
 	ofstream fout;
 	string address;
 	
-	fullAddress << dirAddress << "/" << fileNo << ".txt";
+	fullAddress << dirAddress << "\\" << fileNo << ".txt";
 	fullAddress >> address;
 	fout.open(address);
 	for (auto i = buffer.begin(); i != buffer.end(); i++)
@@ -47,8 +47,7 @@ void extractor::findStart()
 	fin.seekg(0);
 	while (getline(fin,tempstr))
 	{
-		//cout << tempstr <<endl;
-		if (tempstr == "Time/sec, Potential/V\r")
+		if (tempstr == "Time/sec, Potential/V")
 			break;
 	}
 	getline(fin, tempstr);
@@ -60,7 +59,7 @@ int extractor::splitFile(const string &dirAddress)
 	char c;
 	string address;
 	stringstream tempss;
-	fout.open(dirAddress + "/max.txt");
+	fout.open(dirAddress + "\\max.txt");
 	int i = 1;
 	getline(fin, tempstr);
 	buffer.push_back(tempstr);
@@ -68,8 +67,8 @@ int extractor::splitFile(const string &dirAddress)
 	tempss >> data1 >> c >> data2;
 	tempss.clear();
 	lastdata = data2;
-	while (getline(fin, tempstr) &&( tempstr != ""&&tempstr !="\r"))
-	{//cout << tempstr <<endl;
+	while (getline(fin, tempstr) && tempstr != "")
+	{
 		if (lastdata > max)
 		{
 			id = data1;

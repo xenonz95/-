@@ -3,15 +3,23 @@
 
 int main()
 {
-	cout << "½«´ý·Ö½âÎÄ¼þÍÏÈë´Ë´¦£¬²¢»Ø³µÈ·ÈÏ" << endl;
+	cout << "å°†å¾…åˆ†è§£æ–‡ä»¶æ‹–å…¥æ­¤å¤„ï¼Œå¹¶å›žè½¦ç¡®è®¤(æˆ–è¾“å…¥æ–‡ä»¶åœ°å€)" << endl;
 	string fileAddress;
 	cin >> fileAddress;
 	extractor one(fileAddress);
 	one.findStart();
 
-	cout << "½«´ý´æ·ÅÎÄ¼þ¼ÐÍÏÈë´Ë´¦£¬²¢»Ø³µÈ·ÈÏ" << endl;
+	cout << "å°†å¾…å­˜æ”¾æ–‡ä»¶å¤¹æ‹–å…¥æ­¤å¤„ï¼Œå¹¶å›žè½¦ç¡®è®¤(æˆ–è¾“å…¥æ–‡ä»¶å¤¹åœ°å€)" << endl;
 	cin >> fileAddress;
 	one.splitFile(fileAddress);
 	cout << "over" << endl;
+	// ifstream fin;
+	// string line;
+	// fin.open("./all.txt");
+	// while(fin)
+	// {
+	// 	getline(fin,line);
+	// 	cout << line;
+	// }
 	return 0;
 }
