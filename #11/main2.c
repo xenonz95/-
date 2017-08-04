@@ -2,6 +2,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/input.h>
+#include <sys/select.h>
+#include <time.h>
 
 #define PATH "/dev/input/event4"
 
@@ -46,27 +48,42 @@ char out_code(int code)
 
 int main()
 {
-    int file_key;
+    int file_key ,select_num;
     struct input_event input_ev_one;
-    file_key = open(PATH ,O_NONBLOCK);
-    if(file_key <= 0)
+    struct timeval tv;
+    file_key = open(PATH ,O_RDONLY);
+    fd_set read_set;
+    FD_ZERO(&read_set);
+    FD_SET(file_key,&read_set);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    
+    if(file_key <= 0)    
     {
         printf("open keyboard(event4) filed\n");
         return -1;
     }
+    //read(file_key,&input_ev_one,sizeof input_ev_one);
     while(1)
     {
-        if(read(file_key,&input_ev_one,sizeof input_ev_one) == sizeof input_ev_one)
+        
+        if ((select_num = select(file_key+1,&read_set,NULL,NULL,&tv)) >= 0)
         {
-            if(input_ev_one.type == EV_KEY)
+            //printf("test\n");
+            //printf("\n%d\n",select_num);
+        
+            if(read(file_key,&input_ev_one,sizeof input_ev_one) == sizeof input_ev_one)
             {
-                if(input_ev_one.value == 0)
+                if(input_ev_one.type == EV_KEY)
                 {
-                    printf("\nThis is key ");
-                    printf("%c",out_code(input_ev_one.code));
-                    putchar('\n');
-                    if(input_ev_one.code == KEY_ESC)
-                        break;
+                    if(input_ev_one.value == 0)
+                    {
+                        printf("\nThis is key ");
+                        printf("%c",out_code(input_ev_one.code));
+                        putchar('\n');
+                        if(input_ev_one.code == KEY_ESC)
+                            break;
+                    }
                 }
             }
         }

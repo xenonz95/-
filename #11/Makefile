@@ -1,6 +1,6 @@
-main : 
-
+main  : 
+main2 :
 .PHONY : clean
 
 clean :
-	rm main *.o;
+	-rm main main2
