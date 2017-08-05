@@ -46,9 +46,9 @@ void main()
     }
 
     DISPLAY_MEM_BASE_fb = (int *)buf;
-    for(i=0;i<sizeof(DISPLAY_MEM_BASE_fb)/sizeof(int);i++)
+    for(i=0;i<(sizeof(DISPLAY_MEM_BASE_fb)/4);i++)
     {
-        printf("%d\n",DISPLAY_MEM_BASE_fb[i]);
+        printf("%d\n",sizeof(DISPLAY_MEM_BASE_fb));
     }
     return;
 }
