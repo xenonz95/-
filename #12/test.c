@@ -5,7 +5,7 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-
+#include <errno.h>
 
 
 void main()
@@ -38,9 +38,9 @@ void main()
            fb_var.bits_per_pixel, fb_var.xres, fb_var.yres, fb_fix.line_length, fb_fix.smem_len);
 
     buf = (char *)mmap((void *)NULL, fb_fix.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if ((int)buf == -1)
+    if (*(int*)buf == -1)
     {
-        printf("Error: failed to map fb buffer to memory.\n");
+        printf("Error: failed to map fb buffer to memory. |%d\n",errno);
         close(fd);
         return;
     }
