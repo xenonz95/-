@@ -1,6 +1,6 @@
-test  : 
+main :_font.h main.c
 
 .PHONY : clean
 
 clean :
-	-rm test
+	-rm  main *.o
