@@ -1,42 +1,83 @@
 #include "allClass.h"
 
-coordinate::coordinate(char x = 0, char y = 0)
+//tool function------------------------------------------
+
+static inline char _codeToASCII(int code)
 {
-	this.x = x;
-	this.y = y;
+	char c = -1;
+	switch(code){
+    	case 16:c = 'q';break;
+        case 17:c = 'w';break;
+        case 18:c = 'e';break;
+        case 19:c = 'r';break;
+        case 20:c = 't';break;
+        case 21:c = 'y';break;
+        case 22:c = 'u';break;
+        case 23:c = 'i';break;
+        case 24:c = 'o';break;
+        case 25:c = 'p';break;
+        case 30:c = 'a';break;
+        case 31:c = 's';break;
+        case 32:c = 'd';break;
+        case 33:c = 'f';break;
+        case 34:c = 'g';break;
+        case 35:c = 'h';break;
+        case 36:c = 'j';break;
+        case 37:c = 'k';break;
+        case 38:c = 'l';break;
+        case 44:c = 'z';break;
+        case 45:c = 'x';break;
+        case 46:c = 'c';break;
+        case 47:c = 'v';break;
+        case 48:c = 'b';break;
+        case 49:c = 'n';break;
+        case 50:c = 'm';break;
+		default: /*printf ("|isn't a normal key");*/
+			break;
+	}
+return c;
 }
 
-coordinate coordinate::operator+(&A)
+//tool function end--------------------------------------
+
+
+coordinate::coordinate(char x = 0, char y = 0)
+{
+	this->x = x;
+	this->y = y;
+}
+
+coordinate coordinate::operator+(coordinate &A)
 {
 	return coordinate(x + A.x, y + A.y);
 }
 
-coordinate coordinate::operator-(&A)
+coordinate coordinate::operator-(coordinate &A)
 {
 	return coordinate(x - A.x, y - A.y);
 }
 //----------------------------------
 
-display::display(string)
+display::display(string str)
 {
 	//init screen buffer
 	struct fb_fix_screeninfo fb_fix;
 	struct fb_var_screeninfo fb_var;
 	char *buf;
-	if ((fd = open(dev, O_RDWR)) < 0)
+	if ((fd = open(str.c_str(), O_RDWR)) < 0)
 	{
-		printf("Unable to open framebuffer %s\n", dev);
+		printf("Unable to open framebuffer %s\n", str.c_str());
 		return;
 	}
 	if (ioctl(fd, FBIOGET_VSCREENINFO, &fb_var) < 0)
 	{
-		printf("Unable to get  FBIOGET_VSCREENINFO %s\n", dev);
+		printf("Unable to get  FBIOGET_VSCREENINFO %s\n", str.c_str());
 		close(fd);
 		return;
 	}
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &fb_fix) < 0)
 	{
-		printf("Unable to get  FBIOGET_FSCREENINFO %s\n", dev);
+		printf("Unable to get  FBIOGET_FSCREENINFO %s\n", str.c_str());
 		close(fd);
 		return;
 	}
@@ -62,14 +103,15 @@ display::display(string)
 	layer.shrink_to_fit();
 	//init buffer
 	buffer = new int[height * width];
+	memset(buffer, 0, width * height * sizeof(int));
 }
 void display::show()
 {
 	for (auto i = layer.begin(); i != layer.end(); i++)
 	{
-		for (auto j = i.begin(); j != i.end(); j++)
+		for (auto j = *i.begin(); j != *i.end(); j++)
 		{
-			j.draw(buffer);
+			*j.draw(buffer);
 		}
 	}
 	memcpy(fd, buffer, height * width * sizeof(int));
@@ -78,6 +120,11 @@ void display::addItem(item work, int layerNum)
 {
 	layer[layerNum].push_back(work);
 }
+void display::clearLayer(int layerNum)
+{
+	layer[layerNum].clear();
+}
+
 display::~display()
 {
 	delete buffer;
@@ -124,42 +171,6 @@ void item::full_xy_line(int x1, int y1, int x2, int y2, int color, int *buffer)
 		full_xy_area(x1, y1, x1, y2, color, buffer);
 }
 
-char item::out_code(int code)
-{
-	char c = -1;
-	switch(code){
-    	case 16:c = 'q';break;
-        case 17:c = 'w';break;
-        case 18:c = 'e';break;
-        case 19:c = 'r';break;
-        case 20:c = 't';break;
-        case 21:c = 'y';break;
-        case 22:c = 'u';break;
-        case 23:c = 'i';break;
-        case 24:c = 'o';break;
-        case 25:c = 'p';break;
-        case 30:c = 'a';break;
-        case 31:c = 's';break;
-        case 32:c = 'd';break;
-        case 33:c = 'f';break;
-        case 34:c = 'g';break;
-        case 35:c = 'h';break;
-        case 36:c = 'j';break;
-        case 37:c = 'k';break;
-        case 38:c = 'l';break;
-        case 44:c = 'z';break;
-        case 45:c = 'x';break;
-        case 46:c = 'c';break;
-        case 47:c = 'v';break;
-        case 48:c = 'b';break;
-        case 49:c = 'n';break;
-        case 50:c = 'm';break;
-		default: /*printf ("|isn't a normal key");*/
-			break;
-	}
-return c;
-}
-
 int *item::get_font(int no, int color)
 {
 	int *font, i, j;
@@ -204,22 +215,14 @@ void item::print_a_word(int x, int y, int charno, int color, int *buffer)
 	// *x += helvB12_width[charno];
 }
 
-int item::codeToNo(int code)
-{
-	if (code >= 'a' && code <= 'z')
-	{
-		return code - 'a' + 65;
-	}
-	return 0;
-}
 point::point(coordinate _point, int _color = 0x00008888)
 {
-	point = _point;
+	pointCo = _point;
 	color = _color;
 }
-virtual point::draw(int *buffer)
+virtual void point::draw(int *buffer)
 {
-	full_xy_area(point.x, point.y, point.x + 1, point.y + 1, color, buffer);
+	full_xy_area(pointCo.x, pointCo.y, pointCo.x + 1, pointCo.y + 1, color, buffer);
 }
 line::line(coordinate point1, coordinate point2, , int _color = 0x00888800)
 {
@@ -227,7 +230,7 @@ line::line(coordinate point1, coordinate point2, , int _color = 0x00888800)
 	point2 = point2;
 	color = _color;
 }
-virtual line::draw(int *buffer)
+virtual void line::draw(int *buffer)
 {
 	full_xy_line(point1.x, point1.y, point2.x, point2.y, color, buffer);
 }
@@ -237,12 +240,19 @@ rectangle::rectangle(coordinate point1, coordinate point2, , int _color = 0x0000
 	point2 = point2;
 	color = _color;
 }
-virtual rectangle::draw(int *buffer)
+virtual void rectangle::draw(int *buffer)
 {
 	full_xy_area(point1.x, point1.y, point2.x, point2.y, color, buffer);
 }
-virtual word::draw(int *buffer)
+void word::setFont(char word)
 {
+	wordNum = word;
+}
+virtual void word::draw(int *buffer)
+{
+	int *temp;
+	temp = get_font(wordNum, 0x00ffffff);
+	print_a_word(point.x, point.y, 0x00ffffff, buffer);
 }
 //---------------------------------
 input::input(string PATH)
@@ -260,19 +270,106 @@ input::input(string PATH)
 void input::update()
 {
 	fd_set read_set;
+	timeval tv;
 	FD_ZERO(&read_set);
 	FD_SET(fileKey, &read_set);
+	tv.tv_sec = tv.tv_usec = 8333;//1E+6/(60*2)us to insure get the keydown before the screen refresh
+	if(select(fileKey + 1,&read_set,NULL,NULL,tv) > 0)
+	{
+		if(read(fileKey, &event, sizeof(event)) > 0)
+		{
+			if(event.type == EV_KEY)
+			{
+				if (event.code > 1 && event.code < 11)
+				{
+					if (event.value == 1)
+					{
+						function = code;
+					}
+				}
+				if (event.code == 11)
+				{
+					if (event.value == 1)
+					{
+						function = 10;
+					}
+				}
+				if(event.code == 28)
+				{
+					if(event.value == 1)
+					{
+						confirm = 1;
+					}
+				}
+				if (event.code >= 16 && event.code <= 50)
+				{
+					if (event.value == 1)
+					{
+						word = _codeToASCII(event.code);
+					}
+				}
+				if (event.code >= 102 && event.code <= 108)
+				{
+					if(event.value == 1 || event.value == 2)
+					{
+						if(event.code == 106)
+							direction &= 0x01;
+						if(event.code == 103)
+							direction &= 0x02;
+						if(event.code == 105)
+							direction &= 0x04;
+						if(event.code == 108)
+							direction &= 0x08;
+					}
+				}
+			}
+		}
+	}
 
 }
 char input::getWord()
 {
+	if (word >= 'a' && word <= 'z')
+	{
+		return word - 'a' + 65;
+	}
+	return 0;
 }
 char input::getDirection()
 {
+	char temp = direction;
+	direction = 0;
+	switch(temp)
+	{
+		case 0:return 0;break;
+		case 1:return 1;break;
+		case 2:return 3;break;
+		case 3:return 2;break;
+		case 4:return 5;break;
+		case 5:return 0;break;
+		case 6:return 4;break;
+		case 7:return 3;break;
+		case 8:return 7;break;
+		case 9:return 8;break;
+		case 10:return 0;break;
+		case 11:return 1;break;
+		case 12:return 6;break;
+		case 13:return 7;break;
+		case 14:return 5;break;
+		case 15:return 0;break;
+		default:return 0;break;
+	}
 }
 char input::getFun()
 {
+	return function;
 }
+ bool input::getConfirm()
+ {
+	 bool temp = confirm;
+	 confirm = 0;
+	 return temp;
+ }
 //----------------------------------
 funMode::funMode()
 {

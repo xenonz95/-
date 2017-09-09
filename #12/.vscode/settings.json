@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "fb.h": "c",
-        "mman.h": "c"
+        "mman.h": "c",
+        "initializer_list": "cpp"
     }
 }

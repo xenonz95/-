@@ -12,23 +12,30 @@
 #include <sys/mman.h>
 #include <errno.h>
 #include <vector>
+#include <initializer_list>
 
-
-
-#include "allClass.h"
+#include "_font.h"
 
 using namespace std;
 
+class item;
+
 class coordinate
 {
-  private:
+  public:
     char x, y;
 
   public:
     coordinate(char x = 0, char y = 0);
-    coordinate operator+(&A);
-    coordinate operator-(&A);
-}
+    coordinate operator+(coordinate &A);
+    coordinate operator-(coordinate &A);
+    coordinate &operator=(std::initializer_list<char> il)
+    {
+        auto i = il.begin();
+        x = *i;
+        y = *(++i);
+    }
+};
 //------------------------------------------------------------------
 class display
 {
@@ -37,24 +44,25 @@ class display
     int fd;
     vector<vector<item>> layer;
     int *buffer;
+
+  public:
     int height, width;
 
   public:
     display(string);
     void show();
     void addItem(item work, int layerNum);
+    void clearLayer(int layerNum);
     ~display();
-}
+};
 //------------------------------------------------------------------
 class item
 {
   protected:
     void full_xy_area(int x1, int y1, int x2, int y2, int color, int *buffer);
     void full_xy_line(int x1, int y1, int x2, int y2, int color, int *buffer);
-    char out_code(int code);
     int *get_font(int no, int color);
     void print_a_word(int x, int y, int charno, int color, int *buffer);
-    int codeToNo(int code);
     int color;
 
   private:
@@ -62,18 +70,19 @@ class item
     int multiplySize = 3;
 
   public:
-    virtual draw(int *buffer) = 0;
-}
+    virtual void draw(int *buffer);
+};
 
 class point : public item
 {
   private:
-    coordinate point;
+    coordinate pointCo;
 
   public:
-    point(coordinate point);
-    virtual draw(int *buffer);
-} class line : public item
+    point(coordinate _point);
+    virtual void draw(int *buffer);
+};
+class line : public item
 {
   private:
     coordinate point1;
@@ -81,8 +90,9 @@ class point : public item
 
   public:
     line(coordinate point1, coordinate point2);
-    virtual draw(int *buffer);
-} class rectangle : public item
+    virtual void draw(int *buffer);
+};
+class rectangle : public item
 {
   private:
     coordinate point1;
@@ -90,8 +100,9 @@ class point : public item
 
   public:
     rectangle(coordinate point1, coordinate point2);
-    virtual draw(int *buffer);
-} class word : public item
+    virtual void draw(int *buffer);
+};
+class word : public item
 {
   private:
     coordinate point;
@@ -99,8 +110,9 @@ class point : public item
 
   public:
     word(coordinate point);
-    virtual draw(int *buffer);
-}
+    void setFont(char word);
+    virtual void draw(int *buffer);
+};
 //------------------------------------------------------------------
 class input
 {
@@ -108,16 +120,18 @@ class input
     input_event event;
     int fileKey;
     char word;
-    char direction; //zreo means stop,1~8 start from right, anticolckwise.
-    int function;
+    char direction; //just four bit means four key on keyboard
+    char function;
+    char confirm;
 
   public:
     input(string PATH);
     void update();
     char getWord();
-    char getDirection();
+    char getDirection(); //zreo means stop,1~8 start from right, anticolckwise.
     int getFun();
-}
+    bool getConfirm();
+};
 //------------------------------------------------------------------
 
 class funMode
@@ -127,5 +141,5 @@ class funMode
     int mode;
     funMode();
     void set(int a, int b);
-}
+};
 //------------------------------------------------------------------
