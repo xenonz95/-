@@ -1,5 +1,8 @@
 #include "allClass.h"
 
+#define box_height 1080
+#define box_width 1920
+
 //tool function------------------------------------------
 
 static inline char _codeToASCII(int code)
@@ -41,7 +44,7 @@ return c;
 //tool function end--------------------------------------
 
 
-coordinate::coordinate(char x = 0, char y = 0)
+coordinate::coordinate(char x, char y)
 {
 	this->x = x;
 	this->y = y;
@@ -109,12 +112,12 @@ void display::show()
 {
 	for (auto i = layer.begin(); i != layer.end(); i++)
 	{
-		for (auto j = *i.begin(); j != *i.end(); j++)
+		for (auto j = (*i).begin(); j != (*i).end(); j++)
 		{
-			*j.draw(buffer);
+			(*j).draw(buffer);
 		}
 	}
-	memcpy(fd, buffer, height * width * sizeof(int));
+	memcpy(fb, buffer, height * width * sizeof(int));
 }
 void display::addItem(item work, int layerNum)
 {
@@ -153,9 +156,9 @@ void item::full_xy_area(int x1, int y1, int x2, int y2, int color, int *buffer)
 	{
 		for (j = x1; j <= x2; j++)
 		{
-			if (i < 0 || i > box.height || j < 0 || j > box.width)
+			if (i < 0 || i > box_height || j < 0 || j > box_width)
 				continue;
-			buffer[i * (box.width) + j] = color;
+			buffer[i * (box_width) + j] = color;
 		}
 	}
 }
@@ -193,7 +196,7 @@ int *item::get_font(int no, int color)
 	return font;
 }
 
-void item::print_a_word(int x, int y, int charno, int color, int *buffer)
+void item::print_a_word(char x, char y, int charno, int color, int *buffer)
 {
 
 	int *font, tempx = x - 8 * multiplySize, tempy = y - 16, i, j;
@@ -203,11 +206,11 @@ void item::print_a_word(int x, int y, int charno, int color, int *buffer)
 	{
 		for (j = 0; j < helvB12_width[charno] * multiplySize; j++)
 		{
-			if (i < 0 || i > box.height || j < 0 || j > box.width)
+			if (i < 0 || i > box_height || j < 0 || j > box_width)
 				continue;
 			if (font[i / multiplySize * helvB12_width[charno] + j / multiplySize])
 			{
-				buffer[(i + tempy) * (box.width) + (j + tempx)] = color;
+				buffer[(i + tempy) * (box_width) + (j + tempx)] = color;
 			}
 		}
 	}
@@ -215,32 +218,32 @@ void item::print_a_word(int x, int y, int charno, int color, int *buffer)
 	// *x += helvB12_width[charno];
 }
 
-point::point(coordinate _point, int _color = 0x00008888)
+point::point(coordinate _point, int _color)
 {
 	pointCo = _point;
 	color = _color;
 }
-virtual void point::draw(int *buffer)
+void point::draw(int *buffer)
 {
 	full_xy_area(pointCo.x, pointCo.y, pointCo.x + 1, pointCo.y + 1, color, buffer);
 }
-line::line(coordinate point1, coordinate point2, , int _color = 0x00888800)
+line::line(coordinate point1, coordinate point2, int _color)
 {
 	point1 = point1;
 	point2 = point2;
 	color = _color;
 }
-virtual void line::draw(int *buffer)
+void line::draw(int *buffer)
 {
 	full_xy_line(point1.x, point1.y, point2.x, point2.y, color, buffer);
 }
-rectangle::rectangle(coordinate point1, coordinate point2, , int _color = 0x00008888)
+rectangle::rectangle(coordinate point1, coordinate point2, int _color)
 {
 	point1 = point1;
 	point2 = point2;
 	color = _color;
 }
-virtual void rectangle::draw(int *buffer)
+void rectangle::draw(int *buffer)
 {
 	full_xy_area(point1.x, point1.y, point2.x, point2.y, color, buffer);
 }
@@ -248,7 +251,7 @@ void word::setFont(char word)
 {
 	wordNum = word;
 }
-virtual void word::draw(int *buffer)
+void word::draw(int *buffer)
 {
 	int *temp;
 	temp = get_font(wordNum, 0x00ffffff);

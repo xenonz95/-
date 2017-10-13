@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
+#include <cstring>
 #include <math.h>
 #include <linux/fb.h>
 #include <linux/input.h>
@@ -20,7 +21,7 @@ using namespace std;
 
 class item;
 
-class coordinate
+class coordinate// test in
 {
   public:
     char x, y;
@@ -79,7 +80,7 @@ class point : public item
     coordinate pointCo;
 
   public:
-    point(coordinate _point);
+    point(coordinate _point, int _color = 0x00008888);
     virtual void draw(int *buffer);
 };
 class line : public item
@@ -89,7 +90,7 @@ class line : public item
     coordinate point2;
 
   public:
-    line(coordinate point1, coordinate point2);
+    line(coordinate point1, coordinate point2, int _color = 0x00888800);
     virtual void draw(int *buffer);
 };
 class rectangle : public item
@@ -99,7 +100,7 @@ class rectangle : public item
     coordinate point2;
 
   public:
-    rectangle(coordinate point1, coordinate point2);
+    rectangle(coordinate point1, coordinate point2, int _color = 0x00008888);
     virtual void draw(int *buffer);
 };
 class word : public item
@@ -109,7 +110,7 @@ class word : public item
     char wordNum;
 
   public:
-    word(coordinate point);
+    word(coordinate point, int _color);
     void setFont(char word);
     virtual void draw(int *buffer);
 };
