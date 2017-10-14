@@ -70,10 +70,23 @@ class screen
 
 class shape
 {
+protected:
     int color;
+    coordinate box;
 public:
+    void setBox();
     virtual void draw(int *buffer);
     virtual shape &debug();
+};
+class point : public shape
+{
+  private:
+    coordinate pointCo;
+
+  public:
+    point(coordinate _point, int _color = 0x00008888);
+    virtual void draw(int *buffer);
+    virtual point &debug();
 };
 class line : public shape
 {
@@ -102,6 +115,8 @@ class word : public shape
     coordinate pos;
     char wordNum;
     int* font;
+    int multiplySize;
+    int lastWidth;
   public:
     word(coordinate point, int _color);
     void setFont(char word);

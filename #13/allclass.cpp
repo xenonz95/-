@@ -40,9 +40,12 @@ static inline char _codeToASCII(int code)
 	}
 return c;
 }
-static inline void full_xy_area(int x1, int y1, int x2, int y2, int color, int *buffer,int box_height,int box_width)
+static inline void full_xy_area(coordinate pos, coordinate size, int color, int *buffer,coordinate box)
 {
 	int i, j;
+	int x1 = pos.x,y1=pos.y;
+	int x2 = size.x,y2=size.y;
+	int box_height= box.x,box_width=box.y;
 	if (x1 > x2)
 	{
 		x2 = x1 ^ x2;
@@ -66,15 +69,15 @@ static inline void full_xy_area(int x1, int y1, int x2, int y2, int color, int *
 	}
 }
 
-static inline void full_xy_line(int x1, int y1, int x2, int y2, int color, int *buffer,int box_height,int box_width)
+static inline void full_xy_line(coordinate pos, coordinate size, int color, int *buffer,coordinate box)
 {
 	int dx, dy;
-	dx = abs(x2 - x1);
-	dy = abs(y2 - y1);
+	dx = abs(size.x - pos.x);
+	dy = abs(size.y - pos.y);
 	if (dx >= dy)
-		full_xy_area(x1, y1, x2, y1, color, buffer,box_height, box_width);
+		full_xy_area(pos,size, color, buffer, box);
 	else
-		full_xy_area(x1, y1, x1, y2, color, buffer, box_height, box_width);
+		full_xy_area(pos,size, color, buffer, box);
 }
 
 static inline int *get_font(int no, int color)
@@ -99,11 +102,12 @@ static inline int *get_font(int no, int color)
 	return font;
 }
 
-static inline void print_a_word(char x, char y, int charno, int color, int *buffer,int box_height,int box_width,int multiplySize,int lastWidth)
+static inline void print_a_word(coordinate pos, char charno, int color, int *buffer,coordinate box,int multiplySize,int lastWidth)
 {
 
+	int x = pos.x,y=pos.y;
 	int *font, tempx = x - 8 * multiplySize, tempy = y - 16, i, j;
-
+	int box_height= box.x,box_width=box.y;
 	font = get_font(charno, color);
 	for (i = 0; i < CHAR_HEIGHT * multiplySize; i++)
 	{
@@ -249,7 +253,45 @@ screen &screen::debug()
 //------------------------------------
 
 //------------------------------------
-
+point::point(coordinate _point, int _color)
+{
+	pointCo = _point;
+	color = _color;
+}
+void point::draw(int *buffer)
+{
+	full_xy_area(pointCo, {pointCo.x+1,pointCo.y+1}, color, buffer,box);
+}
+line::line(coordinate point1, coordinate point2, int _color)
+{
+	point1 = point1;
+	point2 = point2;
+	color = _color;
+}
+void line::draw(int *buffer)
+{
+	full_xy_line(point1, point2, color, buffer,box);
+}
+rectangle::rectangle(coordinate point1, coordinate point2, int _color)
+{
+	point1 = point1;
+	point2 = point2;
+	color = _color;
+}
+void rectangle::draw(int *buffer)
+{
+	full_xy_area(pos, size, color, buffer,box);
+}
+void word::setFont(char word)
+{
+	wordNum = word;
+}
+void word::draw(int *buffer)
+{
+	int *temp;
+	temp = get_font(wordNum, 0x00ffffff);
+	print_a_word(pos,wordNum, 0x00ffffff, buffer,box,multiplySize,lastWidth);
+}
 //------------------------------------
 input::input(string PATH)
 {
