@@ -1,4 +1,4 @@
-#include <string>
+#include "allhead.h"
 using namespace std;
 
 class coordinate;
@@ -9,7 +9,7 @@ class line;
 class rectangle;
 class word;
 class manager;
-class coursor
+class coursor;
 
 class coordinate
 {
@@ -128,4 +128,33 @@ public:
     void addShape(shape s);
     void print();
     manager& debug();
+};
+
+class input
+{
+  private:
+    input_event event;
+    int fileKey;
+    char word;
+    char direction; //just four bit means four key on keyboard
+    char function;
+    char confirm;
+
+  public:
+    input(string PATH);
+    void update();
+    char getWord();
+    char getDirection(); //zreo means stop,1~8 start from right, anticolckwise.
+    int getFun();
+    bool getConfirm();
+};
+
+class funMode
+{
+  public:
+    int function;
+    int mode;
+    funMode();
+    void set(int a, int b);
+    void used();
 };

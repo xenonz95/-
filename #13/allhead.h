@@ -1,6 +1,7 @@
 //cpp
 #include <iostream>
 #include <string>
+#include <vector>
 //c lang
 #include <stdio.h>
 #include <stdlib.h>
