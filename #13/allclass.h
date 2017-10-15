@@ -1,4 +1,4 @@
-#include <string>
+#include "allhead.h"
 using namespace std;
 
 class coordinate;
@@ -9,7 +9,7 @@ class line;
 class rectangle;
 class word;
 class manager;
-class coursor
+class coursor;
 
 class coordinate
 {
