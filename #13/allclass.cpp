@@ -1,5 +1,5 @@
 //self defined
-#include "allhead.h"
+//#include "allhead.h"
 #include "allclass.h"
 #include "_font.h"
 
