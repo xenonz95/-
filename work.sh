@@ -3,7 +3,7 @@
 if [ "$1" = "commit" ];
 then
 	git add . -A --ignore-errors
-	git commit -m [auto]$2
+	git commit -m [auto]$2 || true
 	exit 0
 fi
 
@@ -23,7 +23,7 @@ for dir in $alldir
 	do
 		cd ./$dir
 		echo 已经进入 $dir
-		make  $1
+		make  $1  || true
 		cd $root
 	
 	done
