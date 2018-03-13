@@ -4,7 +4,7 @@ if [ "$1" = "commit" ];
 then
 	git add . -A --ignore-errors
 	git status
-	git commit -m [auto]$2 || true
+	git commit -m "[auto] $2" || true
 	exit 0
 fi
 
