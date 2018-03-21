@@ -1,12 +1,9 @@
 .PHONY : all clean test
 
-all : out
-
-out : main.c
-	gcc main.c -o out
+all : test
 
 test : test.c
 	gcc test.c -o test
-
 clean : 
-	-@rm *.o out test
+	-@rm *.o test
+	-@rm *.txt
