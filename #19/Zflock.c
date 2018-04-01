@@ -4,6 +4,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <unistd.h>
+#include <stdlib.h>
+
+
 #include <stdio.h>
 
 int main(int argv, char const * argc[])
@@ -26,7 +30,12 @@ int main(int argv, char const * argc[])
 		printf("%s\n", "error while write");
 
 
-	flock(fd, LOCK_SH);
+	ret = flock(fd, LOCK_EX);
+	if(ret == -1)
+	{
+		printf("%s\n", "error while lock");
+		exit(-1);
+	}
 	printf("%s\n", "===========after slock===========");
 	ret = read(fd, buf, 256);
 	if (ret != -1)
