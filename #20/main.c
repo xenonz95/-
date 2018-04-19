@@ -10,7 +10,6 @@
 #define printfexe(fmt,arg...) printf("\033[1;32m"fmt"\033[0m",##arg)
 
 
-
 int maxL = 256;
 int Larr[256] = {0,};
 
@@ -19,12 +18,9 @@ void printLarr()
 	putchar('\t');
 	printf("%s", "Larr: ");
 	for(int i = 0; i<10 ; i++)
-	{
 		printf("%d ", Larr[i]);
-	}
 	return ;
 }
-
 
 void dir_oper(char const*path, int level, int end)
 {
@@ -37,9 +33,7 @@ void dir_oper(char const*path, int level, int end)
 	while(nextname)
 	{
 		if(nextname->d_name[0] == '.')
-		{
 			nextname = readdir(dp);
-		}
 		else
 			break;
 	};
@@ -47,18 +41,14 @@ void dir_oper(char const*path, int level, int end)
 	若未读完，就让他循环*/
 	while(filename = nextname)
 	{
-
 		nextname = readdir(dp);
 		while(nextname)
 		{
 			if(nextname->d_name[0] == '.')
-			{
 				nextname = readdir(dp);
-			}
 			else
 				break;
 		};
-
 		if(filename->d_name[0] == '.')
 			continue;
 		/*判断一个文件是目录还是一个普通文件*/
@@ -67,13 +57,10 @@ void dir_oper(char const*path, int level, int end)
 		strcat(file_path,path);
 		strcat(file_path,"/");
 		strcat(file_path,filename->d_name);
-		
-
-		
 
 		/*获取文件信息，把信息放到s_buf中*/
 		stat(file_path,&s_buf);
-
+		/*输出树状图的符号*/
 		for(int i = 0; i < level; i++ )
 			{
 				if(Larr[i] != 0)
@@ -81,15 +68,10 @@ void dir_oper(char const*path, int level, int end)
 				else
 					printf("│   ");
 			}
-
-			if(nextname != NULL)
-			{
-				printf("├── ");
-			}
-			else
-			{
-				printf("└── ");
-			}
+		if(nextname != NULL)
+			printf("├── ");
+		else
+			printf("└── ");
 
 		/*判断是否目录*/
 		if(S_ISDIR(s_buf.st_mode))
@@ -105,7 +87,6 @@ void dir_oper(char const*path, int level, int end)
 			}
 			dir_oper(file_path, level + 1, end);
 		}
-
 		/*判断是否为普通文件*/
 		if(S_ISREG(s_buf.st_mode))
 		{
@@ -117,13 +98,10 @@ void dir_oper(char const*path, int level, int end)
 			//printLarr();
 			putchar('\n');
 		}
-
 	}
 	Larr[level] = 0;
 	return ;
-
 }
-
 
 int main(int argv, char const* argc[])
 {
