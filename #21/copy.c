@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+//for readdir
+#include <dirent.h>
 
 
 #include <unistd.h>
@@ -12,7 +14,23 @@
 
 #include <string.h>
 
-#define block 512*8
+#define block 512*8 //512 is the best choice
+
+
+#define DEBUG
+
+#ifdef DEBUG
+#define HERE {printf("%shere%s\n",color[1],color[0]);fflush(stdout);}
+#endif
+
+#ifndef DEBUG
+#define HERE ;
+#endif
+
+
+
+
+
 unsigned char buf[block];
 
 typedef unsigned char bool;
@@ -22,31 +40,33 @@ char* space = "                                                  ";
 unsigned int my_error = 0;//1 = open_fail 2 = get_stat_fail 3 = parameter_error
 unsigned int my_warning = 0;// 1 = stack_empty 2 = queue_empty 
 
-char* path_stack[65535] = {NULL,};
+
+struct work 
+{
+	char path[512];
+	DIR *dp;
+};
+
+struct work path_stack[65535] = {{0,}};
 int stack_top = 0;
 char* path_queue[65535] = {NULL,};
 int queue_head = 0;
 int queue_end = 0;
 
 
-bool push(char* str)
+bool push(struct work workin)
 {
 	if(stack_top >= 65535)
 		return -1;
-	if(path_stack[stack_top] != NULL)
-	{
-		free(path_stack[stack_top]);
-		path_stack[stack_top] = NULL;
-	}
-	path_stack[stack_top++] = strdup(str);
+	path_stack[stack_top++] = workin;
 	return 0;
 }
-char* pop()
+struct work pop()
 {
-	if(stack_top < 0)
+	if(stack_top <= 0)
 	{
 		my_warning = 1;
-		return NULL;
+		return path_stack[0];
 	}
 	return path_stack[--stack_top];
 }
@@ -68,12 +88,12 @@ bool enter(char* str)
 
 char* leave()
 {
-	if(queue_end == queue_head)
+	if(queue_end >= queue_head)
 	{
 		my_warning = 2;
 		return NULL;
 	}
-	return path_queue[++queue_end];
+	return path_queue[queue_end++];
 }
 
 int print_progress(double d1, double d2)
@@ -113,8 +133,10 @@ bool is_dir(char* file_name)
 	ret = stat(file_name, &statbuf);
 	if(ret == -1)
 	{
+		printf("%s\n",file_name);
 		printf("[error] while get stat\n");
 		my_error = 2;
+		exit(-1);
 		return 0;
 	}
 	if(S_IFDIR & statbuf.st_mode)
@@ -131,6 +153,7 @@ long get_size(char* file_name)
 	ret = stat(file_name, &statbuf);
 	if(ret == -1)
 	{
+		printf("file name: %s\n",file_name);
 		printf("[error] while get stat\n");
 		my_error = 2;
 		return 0;
@@ -161,20 +184,138 @@ bool copy_bath(char* dest, char* src,int size)
 	close(fdw);
 }
 
-void get_dir_size(char* dest, char* src)
+long get_dir_size(char* dest, char* src)
 {
+	//准备工作
+	//需要入栈的是opendir得到的目录流，根据文件信息进行判断
 	long dir_size = 0;
-
+	struct work now_work = {0,};
+	char fullPaths[512]= {0,};
+	char fullPathd[512]= {0,};
+	char copy_path[512]= {0,};
+	now_work.dp = opendir(src);
+	struct dirent *fileinfo;
+	mkdir(dest, 0777);
+	
 	//首先深度遍历源文件夹，若目的目录不存在则创建目录，读取文件大小后将文件相对地址插入队列
+	while(my_warning != 1)
+	{
+		//循环,先readdir，如果是文件，则入队列，如果是目录，则入栈
+		//如果readdir到了最后一个文件，则出栈，重复之前操作
+		//如果栈空，则结束循环
+		//目录树的根节点不入栈，path记录文件相对于源节点的路径名
+		fileinfo = readdir(now_work.dp);
+		if(fileinfo == NULL)
+		{
+			//pop并恢复状态
+			now_work = pop();
+			continue;
+		}
+		if(fileinfo->d_name[0] == '.')
+		{
+			continue;
+		}
+		strcpy(fullPaths, src);
+		strcat(fullPaths, "/");
+		strcat(fullPaths, now_work.path);
+		strcat(fullPaths, "/");
+		strcat(fullPaths, fileinfo->d_name);
+		//printf("fullPaths:%s\n",fullPaths);
+		if(is_dir(fullPaths))
+		{
+			push( now_work);
+			if(now_work.path[0] != '\0')
+				strcat(now_work.path, "/");
+			strcat(now_work.path, fileinfo->d_name);
+			strcpy(fullPathd, dest);
+			strcat(fullPathd, "/");
+			strcat(fullPathd, now_work.path);
+			//printf("fullPathd:%s\n",fullPathd);
+			mkdir(fullPathd, 0777);
+			now_work.dp = opendir(fullPaths);
+			
+		}
+		else{
+			//printf("get a file\n");
+			dir_size += get_size(fullPaths);
+			strcpy(copy_path, now_work.path);
+			if(now_work.path[0] != '\0')
+				strcat(copy_path, "/");
+			strcat(copy_path, fileinfo->d_name);
+			enter(strdup(copy_path));
+		}
+	}
 	//深度优先遍历时使用栈存储工作目录相对地址
+	return dir_size;
+}
+
+int copy_dir_file(char* dest, char* src, long dir_size)
+{
+	char* relative_path = NULL;
+	char fullPaths[512]= {0,};
+	char fullPathd[512]= {0,};
+
+	double dsize = 0;
+	int size = 0;
+	double ddir_size = dir_size;
+	int fdr = 0;
+	int fdw = 0;
+	int ret = 0;
+	long cpd = 0;
+	long fullcpd = 0;
+
+	while(my_warning != 2)
+	{
+		relative_path = leave();
+		if(relative_path == NULL)
+			break;
+		strcpy(fullPaths, src);
+		strcat(fullPaths, "/");
+		strcat(fullPaths, relative_path);
+		strcpy(fullPathd, dest);
+		strcat(fullPathd, "/");
+		strcat(fullPathd, relative_path);
+		
+		//printf("fullPathd:%s\n",fullPathd);
+
+		size = get_size(fullPaths);
+		dsize = size;
+		cpd = 0;
+		fdr = open(fullPaths, O_RDONLY);
+		fdw = open(fullPathd, O_RDWR | O_TRUNC | O_CREAT, S_IRUSR|S_IWUSR | S_IRGRP | S_IROTH );
+		while(1)
+		{
+			ret = read(fdr, buf, block);
+			cpd += ret;
+			fullcpd += ret;
+			write(fdw, buf, ret);
+			if(print_progress(cpd/dsize, fullcpd/ddir_size) != 1)
+			{
+				if(strlen(fullPaths) > 25)
+					printf("  %-25s", fullPaths + (strlen(fullPaths) - 25));
+				else 
+					printf("  %-25s", fullPaths);
+			}
+			if(cpd == size)
+				break;
+		}
+		
+		
+		free(relative_path);
+		close(fdr);
+		close(fdw);
+
+	}
+
+
 }
 
 int main(int argc, char* const argv[])
 {
 	//prepare something
 	int ret = 0;
-	char cpname[256] = "MVI_5612.mp4";
-	char ptname[256] = "paste.mp4";
+	char cpname[256] = "file";
+	char ptname[256] = "paste";
 	long file_size = 0;
 	long dir_size = 0;
 	int test_mode = 0;
@@ -220,15 +361,12 @@ int main(int argc, char* const argv[])
 		copy_bath(ptname, cpname, file_size);
 	}
 	else{
-
+		dir_size = get_dir_size(ptname, cpname);
+		
+		printf("dir_size:%ld\n",dir_size);
+		copy_dir_file(ptname, cpname, dir_size);
 	}
 
-
-
-
-
-
-	
 	putchar('\n');
 	return 0;
 }
