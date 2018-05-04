@@ -1,4 +1,4 @@
 *.txt
 *.mp4
 
-!*/CMakeList.txt
+!*CMake*
