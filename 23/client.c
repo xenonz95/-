@@ -32,7 +32,7 @@ int main(void)
 		ERR_EXIT("socket");
 
 	struct sockaddr_in in;
-	memset(&in, 0, sizeof(in));
+	bzero(&in, sizeof(in));
 	in.sin_family = AF_INET;
 	in.sin_port = htons(4242);
 	in.sin_addr.s_addr = inet_addr("127.0.0.1");
